@@ -1,0 +1,49 @@
+{
+  "name": "@postward/creative-mcp",
+  "version": "0.1.0",
+  "description": "Local-first MCP server for AI media generation and video editing. Your machine, your files, your API keys. No account, no watermark, no telemetry.",
+  "license": "MIT",
+  "author": "Postward <hello@postward.cc> (https://postward.cc)",
+  "homepage": "https://github.com/postward-cc/postward-creative-mcp#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/postward-cc/postward-creative-mcp.git"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "ffmpeg",
+    "video-editing",
+    "ai",
+    "image-generation",
+    "text-to-speech",
+    "local-first"
+  ],
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "bin": {
+    "postward-creative-mcp": "dist/index.cjs"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "build": "tsc --noEmit && node esbuild.config.mjs",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.13.0",
+    "zod": "^3.25.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "esbuild": "^0.25.0",
+    "typescript": "^5.6.0",
+    "vitest": "^3.0.0"
+  }
+}

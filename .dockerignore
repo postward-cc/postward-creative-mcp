@@ -1,0 +1,8 @@
+node_modules
+dist
+tests
+.github
+*.tsbuildinfo
+.gitignore
+vitest.config.ts
+README.md
