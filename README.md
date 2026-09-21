@@ -29,7 +29,7 @@ Postward ships **two** MCP servers with different jobs:
 | | **postward-creative-mcp** (this repo) | **Postward MCP** (postward.cc) |
 |---|---|---|
 | What it does | **Edits** media **on your machine** (ffmpeg/ImageMagick) | **Generates** media (hosted AI with your keys) plus storage, review, scheduling and **publishing** |
-| Runs on | Your computer (Docker or Node.js) | Postward's servers |
+| Runs on | Your computer (Docker) | Postward's servers |
 | Network calls | **None — 100% offline** | Only to your AI providers, from Postward's servers |
 | API keys | **None needed** | Yours, sealed server-side |
 | Output | Local files + metadata | Workspace assets in Postward storage |
@@ -50,58 +50,28 @@ this repo nags you about it.
 
 ## Installation
 
-You need **one** of these:
-
-- **Docker** (recommended — includes ffmpeg, ImageMagick and fonts; nothing
-  else to install), or
-- **Node.js 22+** if you prefer no Docker. For local install, ffmpeg and
-  ImageMagick must be on your PATH (`apt install ffmpeg imagemagick` on
-  Debian/Ubuntu, `brew install ffmpeg imagemagick` on macOS).
+**The only dependency is Docker.** The image ships ffmpeg, ImageMagick and
+fonts — nothing to install on your machine, no Node.js, no keys, no accounts.
+Generated files persist through the named volume (`postward-creative-output`)
+shown below; you can also bind-mount any local folder instead.
 
 ### Option A — one command (Claude Code)
 
 ```bash
-claude mcp add postward-creative -- npx -y @postward-cc/creative-mcp
+claude mcp add postward-creative -- docker run -i --rm -v postward-creative-output:/tmp/postward-creative ghcr.io/postward-cc/postward-creative-mcp:latest
 ```
 
 For Codex CLI, add the same server to `~/.codex/config.toml`:
 
 ```toml
 [mcp_servers.postward-creative]
-command = "npx"
-args = ["-y", "@postward-cc/creative-mcp"]
+command = "docker"
+args = ["run", "-i", "--rm", "-v", "postward-creative-output:/tmp/postward-creative", "ghcr.io/postward-cc/postward-creative-mcp:latest"]
 ```
 
-### Option B — npx (config file, no Docker)
+### Option B — config file (Claude Desktop, Cursor, anything that speaks MCP)
 
-Add this to your AI assistant's MCP configuration (e.g. in Claude Desktop:
-*Settings → Developer → Edit Config*):
-
-```json
-{
-  "mcpServers": {
-    "postward-creative": {
-      "command": "npx",
-      "args": ["-y", "@postward-cc/creative-mcp"]
-    }
-  }
-}
-```
-
-### Option C — Docker
-
-```json
-{
-  "mcpServers": {
-    "postward-creative": {
-      "command": "docker",
-      "args": ["run", "-i", "--rm", "ghcr.io/postward-cc/postward-creative-mcp:latest"]
-    }
-  }
-}
-```
-
-To keep generated files across container restarts, mount a volume:
+Add to `claude_desktop_config.json` or `.cursor/mcp.json` and restart the app:
 
 ```json
 {
@@ -121,6 +91,11 @@ To keep generated files across container restarts, mount a volume:
 Restart your AI assistant. That's it — ask it *"what tools do you have for
 video editing?"* and it will discover this server. **There is nothing to
 configure after that** — no keys, no accounts.
+
+> Prefer to avoid Docker? It's possible to run the bundle directly with
+> Node.js 22+, but then **you** must provide ffmpeg, ffprobe, ImageMagick
+> and fonts on your PATH — that's why Docker is the supported path. See
+> [Development](#development) if you want to go this route.
 
 ---
 

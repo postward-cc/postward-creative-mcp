@@ -5,11 +5,17 @@ on:
     branches: [main]
   pull_request:
 
+# One run per branch: a new PR push cancels the previous run of that PR.
+# Main runs are never cancelled mid-flight.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   test:
     name: Typecheck + unit suite
-    runs-on: self-hosted
-    timeout-minutes: 20
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
 
@@ -31,16 +37,12 @@ jobs:
 
   docker-build:
     name: Docker build
-    runs-on: self-hosted
-    timeout-minutes: 30
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v7
 
-      - name: Set up Buildx (remote)
-        uses: docker/setup-buildx-action@v3
-        with:
-          driver: remote
-          endpoint: tcp://buildkitd.buildkit:1234
+      - uses: docker/setup-buildx-action@v3
 
       - name: Build image (no push)
         uses: docker/build-push-action@v6
@@ -49,5 +51,7 @@ jobs:
           file: Dockerfile
           target: runtime
           push: false
-          cache-from: type=registry,ref=harbor.local/postward/postward-creative-mcp:buildcache
-          cache-to: ${{ github.ref == 'refs/heads/main' && 'type=registry,ref=harbor.local/postward/postward-creative-mcp:buildcache,mode=min,ignore-error=true' || '' }}
+          # GHA cache (10 GB, free for public repos). PRs read main's cache;
+          # only main writes, so PR runs never thrash it.
+          cache-from: type=gha
+          cache-to: ${{ github.ref == 'refs/heads/main' && 'type=gha,mode=min' || '' }}

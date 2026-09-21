@@ -3,10 +3,6 @@ name: E2E (every tool in Docker)
 # Executes the shipped artifact: the e2e harness runs as a build stage of
 # Dockerfile.e2e, spawning the bundled MCP server and calling all 23 tools
 # plus a multi-tool pipeline inside the same image users pull from ghcr.
-#
-# Self-hosted runners have remote buildkit but no Docker-in-Docker, so —
-# like the monorepo's integration suite — the tests run as part of the
-# image build, and Harbor stores this image's own layer cache.
 
 on:
   pull_request:
@@ -22,9 +18,8 @@ on:
     tags: ["v*"]
   workflow_dispatch:
 
-permissions:
-  contents: read
-
+# One run per branch: a new PR push cancels the previous run of that PR.
+# Main and tag runs are never cancelled mid-flight.
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
@@ -32,16 +27,12 @@ concurrency:
 jobs:
   e2e:
     name: Every tool, in Docker
-    runs-on: self-hosted
-    timeout-minutes: 30
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v7
 
-      - name: Set up Buildx (remote)
-        uses: docker/setup-buildx-action@v3
-        with:
-          driver: remote
-          endpoint: tcp://buildkitd.buildkit:1234
+      - uses: docker/setup-buildx-action@v3
 
       - name: Run e2e suite inside the image
         uses: docker/build-push-action@v6
@@ -50,8 +41,7 @@ jobs:
           file: Dockerfile.e2e
           target: e2e-test
           push: false
-          # Own cache ref: debian + ffmpeg + ImageMagick + node_modules layers
-          # share nothing with the release image's cache.
-          cache-from: type=registry,ref=harbor.local/postward/postward-creative-mcp-e2e:buildcache
-          # Only main and tags export; PRs read but never thrash the ref.
-          cache-to: ${{ (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')) && 'type=registry,ref=harbor.local/postward/postward-creative-mcp-e2e:buildcache,mode=min,ignore-error=true' || '' }}
+          # GHA cache (free for public repos). PRs read main's cache;
+          # only main writes, so PR runs never thrash it.
+          cache-from: type=gha
+          cache-to: ${{ github.ref == 'refs/heads/main' && 'type=gha,mode=min' || '' }}
