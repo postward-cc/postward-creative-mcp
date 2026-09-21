@@ -55,6 +55,31 @@ fonts — nothing to install on your machine, no Node.js, no keys, no accounts.
 Generated files persist through the named volume (`postward-creative-output`)
 shown below; you can also bind-mount any local folder instead.
 
+### Step 0 — install Docker (once)
+
+If you don't have it yet:
+
+- **Windows / macOS**: install
+  [Docker Desktop](https://www.docker.com/products/docker-desktop/) (free for
+  personal use) and start it once — it must be running for your assistant to
+  reach the tools.
+- **Linux**: install Docker Engine —
+  `curl -fsSL https://get.docker.com | sh` — and add yourself to the docker
+  group so you can run it without sudo:
+  `sudo usermod -aG docker $USER` (log out and back in).
+
+Check it works:
+
+```bash
+docker --version
+```
+
+If that prints a version, you're ready. Without Docker running, the server
+cannot start and no tools appear in your assistant — that is expected; there
+is no fallback (this is what keeps your machine clean and your files local).
+
+### Step 1 — connect the server to your assistant
+
 ### Option A — one command (Claude Code)
 
 ```bash
@@ -96,6 +121,49 @@ configure after that** — no keys, no accounts.
 > Node.js 22+, but then **you** must provide ffmpeg, ffprobe, ImageMagick
 > and fonts on your PATH — that's why Docker is the supported path. See
 > [Development](#development) if you want to go this route.
+
+---
+
+## Your first edit
+
+With the server connected and your assistant restarted, just talk to it.
+Grab any video (say, `~/Videos/demo.mp4`) and try:
+
+```
+Trim ~/Videos/demo.mp4 to the first 20 seconds, add the text
+"MY LAUNCH" in white at the bottom, and burn subtitles from
+~/Videos/legendas.srt
+```
+
+Your assistant will chain `trim_video` → `overlay_text` → `burn_subtitles`
+and answer with something like:
+
+```json
+{
+  "filePath": "/tmp/postward-creative/7f3a….mp4",
+  "mimeType": "video/mp4",
+  "bytes": 2411724,
+  "sha256": "9f86d081884c7d65…"
+}
+```
+
+Two things to know:
+
+- **Where the files are.** Outputs live inside the container's
+  `/tmp/postward-creative`, which the named volume keeps across restarts.
+  Want them in a normal folder? Bind-mount one in the config instead —
+  `"postward-creative-output:/tmp/postward-creative"` becomes
+  `"/Users/you/Videos/out:/tmp/postward-creative"` — and every result lands
+  in that folder directly.
+- **Errors are loud.** If something can't be done (wrong path, invalid
+  parameter, unsupported aspect), the tool fails with a machine-readable
+  error your assistant can read and correct — it never silently produces
+  the wrong video.
+
+More one-liners to try: *"make a 3-second GIF from clip.mp4 starting at 0:05"*
+(`create_gif`), *"normalize this to vertical 9:16"* (`transcode_video`),
+*"what's in this file?"* (`probe_media`), *"join these two clips"*
+(`concat_videos`).
 
 ---
 
