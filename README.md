@@ -64,7 +64,7 @@ Add this to your AI assistant's MCP configuration (e.g. in Claude Desktop:
   "mcpServers": {
     "postward-creative": {
       "command": "npx",
-      "args": ["-y", "@postward/creative-mcp"]
+      "args": ["-y", "@postward-cc/creative-mcp"]
     }
   }
 }
@@ -255,7 +255,7 @@ npm run build       # typecheck + esbuild bundle → dist/index.cjs
   install them in CI, and the Docker image ships them).
 - **Releases:** pushing a `v*` tag publishes the Docker image to
   `ghcr.io/postward-cc/postward-creative-mcp` and the package to npm
-  (`@postward/creative-mcp`).
+  (`@postward-cc/creative-mcp`).
 
 ## License
 
