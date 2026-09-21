@@ -54,7 +54,21 @@ You need **one** of these:
   ImageMagick must be on your PATH (`apt install ffmpeg imagemagick` on
   Debian/Ubuntu, `brew install ffmpeg imagemagick` on macOS).
 
-### Option A — npx (simplest, no Docker)
+### Option A — one command (Claude Code)
+
+```bash
+claude mcp add postward-creative -- npx -y @postward-cc/creative-mcp
+```
+
+For Codex CLI, add the same server to `~/.codex/config.toml`:
+
+```toml
+[mcp_servers.postward-creative]
+command = "npx"
+args = ["-y", "@postward-cc/creative-mcp"]
+```
+
+### Option B — npx (config file, no Docker)
 
 Add this to your AI assistant's MCP configuration (e.g. in Claude Desktop:
 *Settings → Developer → Edit Config*):
@@ -70,7 +84,7 @@ Add this to your AI assistant's MCP configuration (e.g. in Claude Desktop:
 }
 ```
 
-### Option B — Docker
+### Option C — Docker
 
 ```json
 {

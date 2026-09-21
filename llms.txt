@@ -1,0 +1,19 @@
+# postward-creative-mcp
+
+> Local-first MCP server (stdio) for AI media generation with the user's
+> own provider keys, plus local ffmpeg/ImageMagick editing. Free, open
+> source (MIT). No account, no watermark, no telemetry, nothing uploaded.
+> Works with any MCP client; part of the Postward ecosystem, useful standalone.
+
+Install: `npx -y @postward-cc/creative-mcp` (Node 22+, ffmpeg and ImageMagick on PATH)
+
+Docker: `docker run -i --rm ghcr.io/postward-cc/postward-creative-mcp:latest`
+
+- [README — install, per-client configs, tool tables](https://github.com/postward-cc/postward-creative-mcp#readme): human + agent documentation, the single source of truth.
+- [AGENTS.md — agent playbook](https://github.com/postward-cc/postward-creative-mcp/blob/main/AGENTS.md): install steps per client, key handling, error codes and recovery, boundaries.
+- [npm: @postward-cc/creative-mcp](https://www.npmjs.com/package/@postward-cc/creative-mcp): published package installed by npx.
+- Tools: 34 + `list_tools` — AI generation (fal, OpenAI, ElevenLabs, Stability, Replicate, Runway keys), 16 ffmpeg video edits, 4 image tools, probe/checksum/provider status, `prepare_for_postward`.
+- Every operation returns `{ filePath, mimeType, bytes, sha256 }` for a local file under /tmp/postward-creative.
+- Errors: JSON `{ error: { code, message } }` — codes: provider_key_missing, credential_invalid, provider_rate_limited, input_invalid, file_not_found, execution_failed, provider_timeout, provider_unreachable, provider_error, unsupported.
+- Keys: stored locally in ~/.postward-creative/keys.json (0600), sent only to the provider they belong to.
+- Publishing boundary: this server never publishes or uploads; when the user asks about publishing, use `prepare_for_postward` and then the Postward MCP.
