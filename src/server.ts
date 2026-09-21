@@ -1,4 +1,5 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import packageJson from "../package.json" with { type: "json" };
 import { toCreativeError } from "./errors.ts";
 import type { ToolDef } from "./tools/define.ts";
 import { generateTools } from "./tools/generate.ts";
@@ -8,7 +9,8 @@ import { utilityTools } from "./tools/utility.ts";
 import { postwardTools } from "./tools/postward.ts";
 
 export const SERVER_NAME = "postward-creative-mcp";
-export const SERVER_VERSION = "0.1.0";
+/** Always the package version — the bundle inlines package.json at build time. */
+export const SERVER_VERSION: string = packageJson.version;
 
 export const allTools: ToolDef[] = [
   ...generateTools,
