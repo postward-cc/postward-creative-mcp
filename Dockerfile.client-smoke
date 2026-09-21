@@ -1,0 +1,34 @@
+# Client smoke test image: a REAL third-party MCP client (oh-my-pi) driving
+# the bundled server through all tools. The model credential is supplied at
+# runtime (docker run -e XAI_API_KEY=…), never baked into the image.
+#
+# Local:  docker build -f Dockerfile.client-smoke -t pw-client-smoke .
+#         docker run --rm -e XAI_API_KEY=… pw-client-smoke
+# CI:     .github/workflows/client-smoke.yml (dispatch + weekly schedule).
+
+FROM node:24-bookworm-slim AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+RUN npm run build
+
+FROM node:24-bookworm-slim AS media-runtime
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ffmpeg \
+    imagemagick \
+    fonts-dejavu-core \
+    ca-certificates \
+  && rm -rf /var/lib/apt/lists/*
+
+FROM media-runtime AS client-smoke
+# oh-my-pi CLI — its bin has a `#!/usr/bin/env bun` shebang, so bun is required
+RUN npm install -g bun @oh-my-pi/pi-coding-agent && omp --version
+WORKDIR /app
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/scripts/omp-smoke.sh ./omp-smoke.sh
+RUN chmod +x ./omp-smoke.sh && mkdir -p /work
+# The server is served as `node /app/dist/index.cjs` (no nested Docker);
+# omp talks to it over stdio like it would with any MCP server.
+ENV WORK=/work
+ENTRYPOINT ["/app/omp-smoke.sh", "--in-docker"]

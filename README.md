@@ -262,8 +262,17 @@ The e2e harness spawns the real server, calls **all 23 tools** on generated
 fixtures plus a multi-tool pipeline (trim → caption → brand → fade → speed →
 checksum → handoff), and asserts on the actual output files. CI runs it
 **inside the Docker image** (`.github/workflows/e2e.yml`), so the artifact
-users pull is exactly what gets exercised — on self-hosted runners, with
-layer cache in Harbor.
+users pull is exactly what gets exercised — on GitHub-hosted runners, with
+layer cache.
+
+On top of that, `.github/workflows/client-smoke.yml` (manual dispatch +
+weekly schedule) runs a **real third-party MCP client**: it installs
+[oh-my-pi](https://github.com/can1357/oh-my-pi) in a container, registers
+the bundled server via project `.mcp.json`, and has the omp agent execute
+all 23 tools, asserting a `24/24 PASS` report. Needs an `OMP_MODEL_API_KEY`
+secret (an LLM key with credits); without it the job self-skips.
+The same flow works locally: point a project `.mcp.json` at the server and
+run any MCP client — `omp -p`, Claude Desktop, Cursor, mcode, …
 
 - **Stack:** TypeScript, Node.js 22+, official MCP SDK, esbuild.
 - **Releases:** pushing a `v*` tag publishes the Docker image to

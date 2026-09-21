@@ -1,0 +1,57 @@
+name: Client smoke (omp × every tool)
+
+# Real-client test: installs oh-my-pi (omp) in a container, registers the
+# bundled MCP server via project .mcp.json, and has the omp agent execute
+# all 23 tools + list_tools, asserting a 24/24 PASS report.
+#
+# Runs on an LLM (costs tokens, mildly non-deterministic), so it does NOT
+# run per-PR: trigger manually or via the weekly schedule.
+#
+# REQUIRED SECRET
+#   OMP_MODEL_API_KEY — an OpenCode Zen–style API key with credits
+#   (the same provider shape as ~/.omp/agent/auth.json). Without it the job
+#   self-skips green.
+# OPTIONAL VARIABLE
+#   OMP_MODEL — default: opencode-go/glm-5.3-flash
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 6 * * 1" # Mondays 06:00 UTC
+
+permissions:
+  contents: read
+
+jobs:
+  client-smoke:
+    name: omp agent × all tools
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Build client-smoke image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile.client-smoke
+          target: client-smoke
+          push: false
+          cache-from: type=gha
+          cache-to: ${{ github.ref == 'refs/heads/main' && 'type=gha,mode=min' || '' }}
+
+      - name: Run omp × all tools
+        env:
+          MODEL_API_KEY: ${{ secrets.OMP_MODEL_API_KEY }}
+          OMP_MODEL: ${{ vars.OMP_MODEL || 'opencode-go/glm-5.3-flash' }}
+        run: |
+          if [ -z "$MODEL_API_KEY" ]; then
+            echo "client-smoke: OMP_MODEL_API_KEY secret not configured — SKIPPING."
+            exit 0
+          fi
+          docker run --rm \
+            -e MODEL_API_KEY \
+            -e OMP_MODEL \
+            pw-client-smoke:latest
