@@ -17,25 +17,29 @@ ImageMagick. Hard boundaries:
 
 ## Installing for the user
 
-Detect the client, then apply the matching setup and restart it:
+Docker is the only dependency — the image ships ffmpeg, ImageMagick and
+fonts. Detect the client, then apply the matching setup and restart it:
 
-- **Claude Code**: `claude mcp add postward-creative -- npx -y @postward-cc/creative-mcp`
+- **Claude Code**: `claude mcp add postward-creative -- docker run -i --rm -v postward-creative-output:/tmp/postward-creative ghcr.io/postward-cc/postward-creative-mcp:latest`
 - **Codex CLI**: add `[mcp_servers.postward-creative]` to `~/.codex/config.toml`
-  with `command = "npx"`, `args = ["-y", "@postward-cc/creative-mcp"]`
-- **Claude Desktop** (`claude_desktop_config.json`) / **Cursor**
-  (`.cursor/mcp.json`):
-  `{ "mcpServers": { "postward-creative": { "command": "npx", "args": ["-y", "@postward-cc/creative-mcp"] } } }`
-- **Docker** (when the host lacks Node/ffmpeg): same JSON with
-  `"command": "docker"`, `"args": ["run", "-i", "--rm", "-v",
+  with `command = "docker"`, `args = ["run", "-i", "--rm", "-v",
   "postward-creative-output:/tmp/postward-creative",
   "ghcr.io/postward-cc/postward-creative-mcp:latest"]`
+- **Claude Desktop** (`claude_desktop_config.json`) / **Cursor**
+  (`.cursor/mcp.json`):
+  `{ "mcpServers": { "postward-creative": { "command": "docker", "args": ["run", "-i", "--rm", "-v", "postward-creative-output:/tmp/postward-creative", "ghcr.io/postward-cc/postward-creative-mcp:latest"] } } }`
 
-After restart, verify by calling `probe_media` on any local file (or
-`list_tools`).
+The named volume keeps generated files across container restarts; a local
+folder can be bind-mounted instead if the user wants files in a specific
+directory.
 
-The npx path needs ffmpeg and ImageMagick on the host PATH for the full
-toolset; the Docker image ships both. There is nothing else to configure
-— no keys exist in this server.
+After restart, verify by calling `probe_media` on any local file the user
+can access (or `list_tools`). There is nothing else to configure — no keys
+exist in this server.
+
+Running from source (development only): `node dist/index.cjs` after
+`npm run build` — but then the host must provide ffmpeg, ffprobe,
+ImageMagick and fonts on its PATH. Docker remains the supported install.
 
 ## Error handling
 
