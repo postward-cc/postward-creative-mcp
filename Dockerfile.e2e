@@ -1,0 +1,27 @@
+# E2E execution suite: builds the exact bundle users install and exercises
+# every tool against it inside this image — ffmpeg, ImageMagick and fonts
+# included. Run by .github/workflows/e2e.yml on the self-hosted runners;
+# the suite passing IS the image build succeeding (RUN fails the build).
+#
+# Local equivalent: node scripts/e2e.mjs  (system ffmpeg against dist/)
+
+FROM node:24-bookworm-slim AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+RUN npm run build
+
+FROM node:24-bookworm-slim AS e2e-test
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ffmpeg \
+    imagemagick \
+    fonts-dejavu-core \
+    ca-certificates \
+  && rm -rf /var/lib/apt/lists/*
+WORKDIR /app
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/scripts ./scripts
+COPY --from=builder /app/node_modules ./node_modules
+# Fails the build (and the CI job) if any tool misbehaves.
+RUN node scripts/e2e.mjs

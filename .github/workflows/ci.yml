@@ -7,38 +7,47 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    name: Typecheck + unit suite
+    runs-on: self-hosted
+    timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: npm
 
-      - name: Install media tooling for integration tests
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends ffmpeg imagemagick fonts-dejavu-core
-
       - run: npm ci
 
       - run: npm run typecheck
 
+      # Hermetic suite: pure ffmpeg argument builders, error contracts and
+      # the MCP server surface. Real-media execution lives in the E2E
+      # workflow, which runs every tool inside the shipped Docker image;
+      # the in-tree integration tests self-skip when the runner has no
+      # ffmpeg/ImageMagick.
       - run: npm test
 
   docker-build:
-    runs-on: ubuntu-latest
+    name: Docker build
+    runs-on: self-hosted
+    timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: docker/setup-buildx-action@v3
+      - name: Set up Buildx (remote)
+        uses: docker/setup-buildx-action@v3
+        with:
+          driver: remote
+          endpoint: tcp://buildkitd.buildkit:1234
 
       - name: Build image (no push)
         uses: docker/build-push-action@v6
         with:
           context: .
+          file: Dockerfile
+          target: runtime
           push: false
-          tags: postward-creative-mcp:ci
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=registry,ref=harbor.local/postward/postward-creative-mcp:buildcache
+          cache-to: ${{ github.ref == 'refs/heads/main' && 'type=registry,ref=harbor.local/postward/postward-creative-mcp:buildcache,mode=min,ignore-error=true' || '' }}

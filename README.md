@@ -210,15 +210,19 @@ git clone https://github.com/postward-cc/postward-creative-mcp
 cd postward-creative-mcp
 npm install
 npm run typecheck   # strict TypeScript
-npm test            # unit + real ffmpeg/IM integration tests
+npm test            # unit suite (arg builders, contracts, server surface)
 npm run build       # typecheck + esbuild bundle → dist/index.cjs
+node scripts/e2e.mjs  # e2e: drives the bundled server through every tool
 ```
 
+The e2e harness spawns the real server, calls **all 23 tools** on generated
+fixtures plus a multi-tool pipeline (trim → caption → brand → fade → speed →
+checksum → handoff), and asserts on the actual output files. CI runs it
+**inside the Docker image** (`.github/workflows/e2e.yml`), so the artifact
+users pull is exactly what gets exercised — on self-hosted runners, with
+layer cache in Harbor.
+
 - **Stack:** TypeScript, Node.js 22+, official MCP SDK, esbuild.
-- **Tests:** pure ffmpeg argument builders are pinned by unit tests (no
-  mocking); integration tests run real ffmpeg/ImageMagick when the
-  binaries are available (they install them in CI, and the Docker image
-  ships them).
 - **Releases:** pushing a `v*` tag publishes the Docker image to
   `ghcr.io/postward-cc/postward-creative-mcp` and the package to npm
   (`@postward-cc/creative-mcp`).
