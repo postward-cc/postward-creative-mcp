@@ -273,3 +273,15 @@ layer cache in Harbor.
 ## License
 
 [MIT](./LICENSE) — © Postward
+
+## Updating
+
+The `:latest` tag is only resolved when the container starts — Docker never
+updates images on its own. After a new release, run:
+
+```bash
+docker pull ghcr.io/postward-cc/postward-creative-mcp:latest
+```
+
+and restart your assistant. (Check which version you have: ask your
+assistant anything — the server reports its version in the MCP handshake.)
