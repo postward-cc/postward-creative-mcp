@@ -1,6 +1,6 @@
 {
   "name": "@postward-cc/creative-mcp",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Local-first MCP server for AI media generation and video editing. Your machine, your files, your API keys. No account, no watermark, no telemetry.",
   "license": "MIT",
   "author": "Postward <hello@postward.cc> (https://postward.cc)",
