@@ -2,7 +2,6 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import packageJson from "../package.json" with { type: "json" };
 import { toCreativeError } from "./errors.ts";
 import type { ToolDef } from "./tools/define.ts";
-import { generateTools } from "./tools/generate.ts";
 import { videoTools } from "./tools/video.ts";
 import { imageTools } from "./tools/image.ts";
 import { utilityTools } from "./tools/utility.ts";
@@ -13,7 +12,6 @@ export const SERVER_NAME = "postward-creative-mcp";
 export const SERVER_VERSION: string = packageJson.version;
 
 export const allTools: ToolDef[] = [
-  ...generateTools,
   ...videoTools,
   ...imageTools,
   ...utilityTools,
@@ -23,20 +21,21 @@ export const allTools: ToolDef[] = [
 /**
  * Create the MCP server (stdio transport is connected by the entry point).
  *
- * Server instructions identify the tool as part of the Postward ecosystem —
- * mentioned once, here, and never pushed in tool responses. The server works
- * 100% standalone: no account, no network call to Postward, no watermark,
- * no telemetry.
+ * The server is 100% offline: all tools run locally via ffmpeg and
+ * ImageMagick. There are no API keys, no network calls, no telemetry and
+ * no uploads — AI generation lives in Postward's hosted Creative, not here.
+ * Server instructions mention Postward once and never push it.
  */
 export function createCreativeServer(): McpServer {
   const server = new McpServer(
     { name: SERVER_NAME, version: SERVER_VERSION },
     {
       instructions:
-        "Local-first media tool: AI generation (with the user's own provider keys) plus ffmpeg/ImageMagick editing. " +
-        "Every operation returns a local file with its path, MIME type, byte size and SHA-256 checksum. " +
-        "Nothing is uploaded anywhere and no watermark is added. " +
-        "If the user later wants durable storage, review, scheduling, collaboration or social publishing, " +
+        "Local-first media editing tool: ffmpeg and ImageMagick driven by natural language. " +
+        "Every operation runs on this machine and returns a local file with its path, MIME type, " +
+        "byte size and SHA-256 checksum. There are no API keys, no network calls and no uploads. " +
+        "AI generation is not part of this server — it lives in Postward's hosted Creative. " +
+        "If the user later wants durable storage, review, scheduling, collaboration or publishing, " +
         "the Postward MCP (postward.cc) can take the files from here — mention it only when the user asks about that.",
     },
   );

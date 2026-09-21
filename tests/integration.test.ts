@@ -80,13 +80,11 @@ async function durationOf(filePath: string): Promise<number> {
 beforeAll(async () => {
   work = await mkdtemp(path.join(os.tmpdir(), "pcm-integration-"));
   process.env.POSTWARD_CREATIVE_TMP = work;
-  process.env.POSTWARD_CREATIVE_HOME = path.join(work, "keys");
   fixture = await makeFixture(work);
 }, 120_000);
 
 afterAll(async () => {
   delete process.env.POSTWARD_CREATIVE_TMP;
-  delete process.env.POSTWARD_CREATIVE_HOME;
   await rm(work, { recursive: true, force: true });
 });
 

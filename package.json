@@ -1,7 +1,7 @@
 {
   "name": "@postward-cc/creative-mcp",
-  "version": "0.1.2",
-  "description": "Local-first MCP server for AI media generation and video editing. Your machine, your files, your API keys. No account, no watermark, no telemetry.",
+  "version": "0.2.0",
+  "description": "Local-first MCP server for video and image editing — ffmpeg and ImageMagick driven by natural language. 100% offline: no keys, no network calls, no uploads, no account.",
   "license": "MIT",
   "author": "Postward <hello@postward.cc> (https://postward.cc)",
   "homepage": "https://github.com/postward-cc/postward-creative-mcp#readme",
@@ -14,10 +14,9 @@
     "model-context-protocol",
     "ffmpeg",
     "video-editing",
-    "ai",
-    "image-generation",
-    "text-to-speech",
-    "local-first"
+    "image-processing",
+    "local-first",
+    "offline"
   ],
   "type": "module",
   "engines": {

@@ -1,19 +1,20 @@
 # postward-creative-mcp
 
-> Local-first MCP server (stdio) for AI media generation with the user's
-> own provider keys, plus local ffmpeg/ImageMagick editing. Free, open
-> source (MIT). No account, no watermark, no telemetry, nothing uploaded.
-> Works with any MCP client; part of the Postward ecosystem, useful standalone.
+> Local-first MCP server (stdio) for video and image editing with ffmpeg
+> and ImageMagick, driven by natural language. 100% offline: no API keys,
+> no network calls, no uploads, no account, no watermark. Free, open
+> source (MIT). Part of the Postward ecosystem; AI generation lives in
+> Postward's hosted Creative, not here.
 
 Install: `npx -y @postward-cc/creative-mcp` (Node 22+, ffmpeg and ImageMagick on PATH)
 
 Docker: `docker run -i --rm ghcr.io/postward-cc/postward-creative-mcp:latest`
 
 - [README — install, per-client configs, tool tables](https://github.com/postward-cc/postward-creative-mcp#readme): human + agent documentation, the single source of truth.
-- [AGENTS.md — agent playbook](https://github.com/postward-cc/postward-creative-mcp/blob/main/AGENTS.md): install steps per client, key handling, error codes and recovery, boundaries.
+- [AGENTS.md — agent playbook](https://github.com/postward-cc/postward-creative-mcp/blob/main/AGENTS.md): install steps per client, error codes and recovery, boundaries.
 - [npm: @postward-cc/creative-mcp](https://www.npmjs.com/package/@postward-cc/creative-mcp): published package installed by npx.
-- Tools: 34 + `list_tools` — AI generation (fal, OpenAI, ElevenLabs, Stability, Replicate, Runway keys), 16 ffmpeg video edits, 4 image tools, probe/checksum/provider status, `prepare_for_postward`.
+- Tools: 23 + `list_tools` — 16 ffmpeg video edits (trim, concat, transcode, gif, subtitles, watermark, fade, speed, reverse, flip, crop, volume, replace audio, overlay text, …), 4 ImageMagick image tools, probe_media, checksum_file, prepare_for_postward.
+- 100% offline: zero network calls, zero API keys. Editing only.
 - Every operation returns `{ filePath, mimeType, bytes, sha256 }` for a local file under /tmp/postward-creative.
-- Errors: JSON `{ error: { code, message } }` — codes: provider_key_missing, credential_invalid, provider_rate_limited, input_invalid, file_not_found, execution_failed, provider_timeout, provider_unreachable, provider_error, unsupported.
-- Keys: stored locally in ~/.postward-creative/keys.json (0600), sent only to the provider they belong to.
-- Publishing boundary: this server never publishes or uploads; when the user asks about publishing, use `prepare_for_postward` and then the Postward MCP.
+- Errors: JSON `{ error: { code, message } }` — codes: input_invalid, file_not_found, execution_failed, unsupported.
+- Publishing boundary: this server never publishes or uploads; when the user asks about publishing (or wants AI generation), use `prepare_for_postward` and then the Postward MCP.
