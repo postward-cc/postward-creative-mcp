@@ -217,7 +217,9 @@ No account needed to open it, no watermark on it, no strings attached.
 
 ## Non-negotiable principles
 
-1. **100% offline** — zero network calls. Not "telemetry-free": *offline*.
+1. **The server makes zero network calls.** Not "telemetry-free": the
+   editing tools cannot phone home. The only network touch in the whole
+   project is the launcher's explicit update check at container start.
 2. **No API keys, no account** — editing is local compute, forever free.
 3. **No watermark** on any output — ever.
 4. **No uploads** — your media never leaves your machine through this server.
@@ -276,12 +278,16 @@ layer cache in Harbor.
 
 ## Updating
 
-The `:latest` tag is only resolved when the container starts — Docker never
-updates images on its own. After a new release, run:
+Already handled: every start, the launcher checks ghcr for a newer image,
+pulls it when one exists, and falls back to the cached image when offline.
+New releases reach you on the next assistant restart, with zero action.
+
+Manual option (or to refresh while offline-then-online without restarting):
 
 ```bash
-docker pull ghcr.io/postward-cc/postward-creative-mcp:latest
+scripts/update.sh
 ```
 
-and restart your assistant. (Check which version you have: ask your
-assistant anything — the server reports its version in the MCP handshake.)
+To know which version a session is running: ask your assistant — the server
+reports its version in the MCP handshake. (Windows users with the plain
+`docker run` config: `docker pull <image>` + restart.)
