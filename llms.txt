@@ -6,10 +6,10 @@
 > source (MIT). Part of the Postward ecosystem; AI generation lives in
 > Postward's hosted Creative, not here.
 
-Install (Docker is the only dependency — the image ships ffmpeg, ImageMagick and fonts):
-`docker run -i --rm -v postward-creative-output:/tmp/postward-creative ghcr.io/postward-cc/postward-creative-mcp:latest`
+Install (Docker is the only dependency — the image ships ffmpeg, ImageMagick and fonts). The launcher auto-pulls the newest image at every start and falls back to the cached one offline:
+`sh -c "docker pull ghcr.io/postward-cc/postward-creative-mcp:latest >/dev/null 2>&1; exec docker run -i --rm -v postward-creative-output:/tmp/postward-creative ghcr.io/postward-cc/postward-creative-mcp:latest"`
 
-Claude Code one-liner: `claude mcp add postward-creative -- docker run -i --rm -v postward-creative-output:/tmp/postward-creative ghcr.io/postward-cc/postward-creative-mcp:latest`
+Claude Code one-liner: `claude mcp add postward-creative -- sh -c "docker pull ghcr.io/postward-cc/postward-creative-mcp:latest >/dev/null 2>&1; exec docker run -i --rm -v postward-creative-output:/tmp/postward-creative ghcr.io/postward-cc/postward-creative-mcp:latest"`
 
 - [README — install, per-client configs, tool tables](https://github.com/postward-cc/postward-creative-mcp#readme): human + agent documentation, the single source of truth.
 - [AGENTS.md — agent playbook](https://github.com/postward-cc/postward-creative-mcp/blob/main/AGENTS.md): install steps per client, error codes and recovery, boundaries.
