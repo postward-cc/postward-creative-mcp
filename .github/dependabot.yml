@@ -37,6 +37,19 @@ updates:
       # version bump; see the note in the docker entry below.
       - dependency-name: "@types/node"
         update-types: [version-update:semver-major]
+      # TypeScript 7 is the native-compiler major and the version bump is never
+      # the whole change. The build script passes compiler flags on the command
+      # line alongside a file, which tsc 5 tolerated silently and tsc 7 rejects
+      # with TS5112. Landing it means a dedicated tsconfig for the declaration
+      # emit plus that script change — a build-pipeline change, carried by its
+      # own pull request. Ignored here so it stops arriving as a bump that can
+      # only fail; when that pull request happens, this entry and the version
+      # move together.
+      #
+      # The migration is already measured: on 7.0.2 with that fix, the build
+      # passes and the emitted .d.ts is byte-for-byte identical to 5.9.3's.
+      - dependency-name: "typescript"
+        update-types: [version-update:semver-major]
 
   # Two things depend on the Node release line: the published media base image
   # and the binary a user runs. This ecosystem is what turns "Node 24 is still
