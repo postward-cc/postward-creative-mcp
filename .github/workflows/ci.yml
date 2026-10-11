@@ -37,6 +37,10 @@ jobs:
       # MCP server surface. Real-media execution lives in the E2E workflow.
       - run: npm test
 
+      # The published ffmpeg-args subpath must stay fully covered: the cloud
+      # worker imports it, and neither adapter reaches its internal guards.
+      - run: npm run test:coverage
+
   docker-build:
     name: Docker build
     runs-on: ubuntu-latest
