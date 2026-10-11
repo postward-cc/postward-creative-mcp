@@ -2,7 +2,7 @@
 # The runtime image carries ffmpeg (all codecs), ImageMagick and DejaVu fonts
 # so users never install media tooling on the host machine.
 
-FROM node:24-bookworm-slim AS builder
+FROM node:25-bookworm-slim AS builder
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci
@@ -19,7 +19,7 @@ RUN npm run typecheck && node esbuild.config.mjs
 #
 # It is deliberately bare: no WORKDIR, no entrypoint, no volume. A base image
 # that declared an entrypoint would force every consumer to reset it.
-FROM node:24-bookworm-slim AS media
+FROM node:25-bookworm-slim AS media
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ffmpeg \
     imagemagick \

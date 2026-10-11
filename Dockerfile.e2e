@@ -5,14 +5,14 @@
 #
 # Local equivalent: node scripts/e2e.mjs  (system ffmpeg against dist/)
 
-FROM node:24-bookworm-slim AS builder
+FROM node:25-bookworm-slim AS builder
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci
 COPY . .
 RUN npm run build
 
-FROM node:24-bookworm-slim AS e2e-test
+FROM node:25-bookworm-slim AS e2e-test
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ffmpeg \
     imagemagick \
