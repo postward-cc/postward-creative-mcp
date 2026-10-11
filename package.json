@@ -1,7 +1,7 @@
 {
   "name": "@postward-cc/creative-mcp",
   "version": "0.3.0",
-  "description": "Local-first MCP server for video and image editing — ffmpeg and ImageMagick driven by natural language. 100% offline: no keys, no network calls, no uploads, no account.",
+  "description": "Local-first MCP server for video and image editing \u2014 ffmpeg and ImageMagick driven by natural language. 100% offline: no keys, no network calls, no uploads, no account.",
   "license": "MIT",
   "author": "Postward <hello@postward.cc> (https://postward.cc)",
   "homepage": "https://github.com/postward-cc/postward-creative-mcp#readme",
@@ -39,6 +39,7 @@
     "typecheck": "tsc --noEmit",
     "build": "tsc --noEmit && node esbuild.config.mjs && tsc --declaration --emitDeclarationOnly --noEmit false --target ES2022 --module NodeNext --moduleResolution NodeNext --strict --skipLibCheck --rootDir src/lib --outDir dist src/lib/ffmpeg-args.ts",
     "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
     "check:package-exports": "node scripts/check-package-exports.mjs",
     "test:watch": "vitest",
     "prepublishOnly": "npm run build"
@@ -51,6 +52,7 @@
     "@types/node": "^22.0.0",
     "esbuild": "^0.25.0",
     "typescript": "^5.6.0",
-    "vitest": "^3.0.0"
+    "vitest": "^3.0.0",
+    "@vitest/coverage-v8": "3.2.4"
   }
 }
