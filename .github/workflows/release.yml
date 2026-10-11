@@ -62,7 +62,7 @@ jobs:
           target: media
           push: true
           tags: |
-            ghcr.io/postward-cc/creative-mcp-media:${{ github.ref_name }}
+            ghcr.io/postward-cc/postward-creative-mcp-media:${{ github.ref_name }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
