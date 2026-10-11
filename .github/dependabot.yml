@@ -13,8 +13,19 @@ updates:
       day: monday
     open-pull-requests-limit: 3
     groups:
-      # Patch and minor updates arrive as one pull request. Majors come on their
-      # own, because those are the ones that need reading before merging.
+      # The coverage provider is a plugin of the test runner, not a dependency
+      # beside it: @vitest/coverage-v8 5 refuses to load under vitest 3, and
+      # Dependabot proposes them as two unrelated pull requests. The first one
+      # cannot go green on its own — it fails the typecheck, the E2E and the
+      # Docker build, all three — and a dependency update that can never pass is
+      # noise that trains you to ignore the ones that can. No update-types here
+      # on purpose: the major is exactly the case that has to arrive together.
+      vitest:
+        patterns: ["vitest", "@vitest/*"]
+
+      # Everything else: patch and minor arrive as one pull request, majors come
+      # on their own, because those are the ones that need reading before
+      # merging.
       deps:
         patterns: ["*"]
         update-types: [minor, patch]
