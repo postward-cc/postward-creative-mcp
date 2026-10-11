@@ -279,8 +279,30 @@ run any MCP client — `omp -p`, Claude Desktop, Cursor, mcode, …
 
 - **Stack:** TypeScript, Node.js 22+, official MCP SDK, esbuild.
 - **Releases:** pushing a `v*` tag publishes the Docker image to
-  `ghcr.io/postward-cc/postward-creative-mcp` and the package to npm
+  `ghcr.io/postward-cc/postward-creative-mcp`, the bare media base image to
+  `ghcr.io/postward-cc/creative-mcp-media`, and the package to npm
   (`@postward-cc/creative-mcp`).
+
+### The media base image
+
+`ghcr.io/postward-cc/creative-mcp-media:<release tag>` carries the toolchain and
+nothing else — ffmpeg, ImageMagick, DejaVu fonts, CA certificates on
+`node:24-bookworm-slim`. No workdir, no entrypoint, no volume.
+
+Use it when you need the same media tooling but not this MCP server:
+
+```dockerfile
+FROM ghcr.io/postward-cc/creative-mcp-media:v0.3.0
+# ... your own layers
+```
+
+Pin the release tag. The tag freezes this repository's whole state, toolchain
+included, so `v0.3.0` keeps giving you exactly that toolchain as later releases
+move on.
+
+The package's own runtime is built `FROM` this same stage, so a server image and
+a consumer image cannot drift apart on the apt line — which is the failure this
+stage exists to remove.
 
 The pure FFmpeg argument primitives are also exported as a typed package
 subpath for other Postward tools to share:

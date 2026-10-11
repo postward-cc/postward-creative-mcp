@@ -33,6 +33,39 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+  # The media toolchain on its own, for images that only need ffmpeg and
+  # ImageMagick and not the MCP server. Tagged with the release tag rather than
+  # a channel of its own: the release tag already freezes this repository's whole
+  # state, toolchain included, so a consumer that pins v0.3.0 keeps exactly that
+  # toolchain even as later releases move.
+  media-publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Log in to ghcr.io
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push the media base image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          target: media
+          push: true
+          tags: |
+            ghcr.io/postward-cc/creative-mcp-media:${{ github.ref_name }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
   npm-publish:
     runs-on: ubuntu-latest
     environment: npm
