@@ -37,7 +37,7 @@
   ],
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "build": "tsc --noEmit && node esbuild.config.mjs && tsc --declaration --emitDeclarationOnly --noEmit false --target ES2022 --module NodeNext --moduleResolution NodeNext --strict --skipLibCheck --rootDir src/lib --outDir dist src/lib/ffmpeg-args.ts",
+    "build": "tsc --noEmit && node esbuild.config.mjs && tsc -p tsconfig.build.json",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "check:package-exports": "node scripts/check-package-exports.mjs",
@@ -52,7 +52,7 @@
     "@types/node": "^24.0.0",
     "@vitest/coverage-v8": "^5.0.3",
     "esbuild": "^0.28.2",
-    "typescript": "^5.6.0",
+    "typescript": "^7.0.2",
     "vite": "^8.3.4",
     "vitest": "^5.0.3"
   }
