@@ -1,0 +1,27 @@
+name: Release drift
+
+on:
+  schedule:
+    # Weekly, Monday morning. The drift this reports is never urgent — the
+    # published artifact works, it is just behind — so a schedule that runs
+    # often enough to be noticed is the right weight. Not the wrong weight for a
+    # pull request: this asks the registry a question, and a gate that depends
+    # on a network round trip fails for reasons unrelated to the change under
+    # review.
+    - cron: "23 7 * * 1"
+  workflow_dispatch:
+
+jobs:
+  runtime-dependencies:
+    name: Published dependencies match package.json
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+
+      - name: Compare package.json against what is published
+        run: node scripts/check-runtime-deps-published.mjs
