@@ -1,0 +1,45 @@
+version: 2
+
+# This repository had no update automation, which is why the base image drifted
+# twice without anyone being told: the Dockerfile went on building from a Node
+# release the rest of the project had moved past, and nothing raised it. The
+# cloud tracks the image this repo *publishes*; nothing tracked what this repo
+# *builds from*.
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 3
+    groups:
+      # Patch and minor updates arrive as one pull request. Majors come on their
+      # own, because those are the ones that need reading before merging.
+      deps:
+        patterns: ["*"]
+        update-types: [minor, patch]
+    ignore:
+      # Held back deliberately. `engines.node`, the CI node-version, the
+      # Dockerfile base and this dependency have to move together, and four
+      # separate Dependabot pull requests would break the agreement between
+      # them. Moving Node is a reviewed change across both repositories, not a
+      # version bump; see the note in the docker entry below.
+      - dependency-name: "@types/node"
+        update-types: [version-update:semver-major]
+
+  # Two things depend on the Node release line: the published media base image
+  # and the binary a user runs. This ecosystem is what turns "Node 24 is still
+  # supported" into a pull request instead of something nobody notices, and it
+  # is also what will announce Node 26 LTS — including for the media base, which
+  # the cloud then consumes through its own media-toolchain group.
+  - package-ecosystem: docker
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 2
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 2
