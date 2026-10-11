@@ -16,6 +16,7 @@ import {
   TRANSCODE_ASPECTS,
   TRANSCODE_DIMENSIONS,
   WATERMARK_POSITIONS,
+  scalePadFilter,
   watermarkCoordinates,
 } from "./ffmpeg-args.ts";
 
@@ -243,7 +244,7 @@ export function buildTranscodeArgs(
       "-i",
       videoPath,
       "-vf",
-      `scale=${w}:${h}:force_original_aspect_ratio=decrease,pad=${w}:${h}:(ow-iw)/2:(oh-ih)/2`,
+      scalePadFilter(w, h),
       "-c:v",
       "libx264",
       "-preset",
