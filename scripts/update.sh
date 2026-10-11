@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Update the local postward-creative-mcp image to the newest release.
+# Update the local creative-mcp image to the newest release.
 #
 # This is the ONLY command in this project that touches the network — the
 # MCP server itself makes zero network calls, always. Updating is an explicit,
@@ -8,7 +8,7 @@
 # Usage: scripts/update.sh
 set -euo pipefail
 
-IMAGE="ghcr.io/postward-cc/postward-creative-mcp:latest"
+IMAGE="ghcr.io/postward-cc/creative-mcp:latest"
 
 digest() {
   docker image inspect --format '{{index .RepoDigests 0}}' "$IMAGE" 2>/dev/null | awk -F@ '{print $2}'

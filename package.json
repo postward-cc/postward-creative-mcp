@@ -30,7 +30,7 @@
     "node": ">=22"
   },
   "bin": {
-    "postward-creative-mcp": "dist/index.cjs"
+    "creative-mcp": "dist/index.cjs"
   },
   "files": [
     "dist"

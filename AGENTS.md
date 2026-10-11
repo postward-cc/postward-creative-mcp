@@ -1,7 +1,7 @@
 # AGENTS.md — playbook for AI agents
 
 Guidance for AI assistants and coding agents that install, configure or
-operate `postward-creative-mcp` for a user.
+operate the `postward-creative-mcp` repository for a user (the server it builds announces itself as `creative-mcp`).
 
 ## What this server is
 
@@ -20,16 +20,16 @@ ImageMagick. Hard boundaries:
 Docker is the only dependency — the image ships ffmpeg, ImageMagick and
 fonts. Detect the client, then apply the matching setup and restart it:
 
-- **Claude Code**: `claude mcp add postward-creative -- sh -c "docker pull ghcr.io/postward-cc/postward-creative-mcp:latest >/dev/null 2>&1; exec docker run -i --rm -v postward-creative-output:/tmp/postward-creative ghcr.io/postward-cc/postward-creative-mcp:latest"`
+- **Claude Code**: `claude mcp add postward-creative -- sh -c "docker pull ghcr.io/postward-cc/creative-mcp:latest >/dev/null 2>&1; exec docker run -i --rm -v postward-creative-output:/tmp/postward-creative ghcr.io/postward-cc/creative-mcp:latest"`
 - **Codex CLI**: add `[mcp_servers.postward-creative]` to `~/.codex/config.toml`
-  with `command = "sh"`, `args = ["-c", "docker pull ghcr.io/postward-cc/postward-creative-mcp:latest >/dev/null 2>&1; exec docker run -i --rm -v postward-creative-output:/tmp/postward-creative ghcr.io/postward-cc/postward-creative-mcp:latest"]`
+  with `command = "sh"`, `args = ["-c", "docker pull ghcr.io/postward-cc/creative-mcp:latest >/dev/null 2>&1; exec docker run -i --rm -v postward-creative-output:/tmp/postward-creative ghcr.io/postward-cc/creative-mcp:latest"]`
 
 The launcher's `docker pull … ; exec docker run …` pattern auto-updates at
 every start and falls back to the cached image offline. On Windows (no `sh`),
 use the plain `docker run …` form and update manually with `docker pull`.
 - **Claude Desktop** (`claude_desktop_config.json`) / **Cursor**
   (`.cursor/mcp.json`):
-  `{ "mcpServers": { "postward-creative": { "command": "docker", "args": ["run", "-i", "--rm", "-v", "postward-creative-output:/tmp/postward-creative", "ghcr.io/postward-cc/postward-creative-mcp:latest"] } } }`
+  `{ "mcpServers": { "postward-creative": { "command": "docker", "args": ["run", "-i", "--rm", "-v", "postward-creative-output:/tmp/postward-creative", "ghcr.io/postward-cc/creative-mcp:latest"] } } }`
 
 The named volume keeps generated files across container restarts; a local
 folder can be bind-mounted instead if the user wants files in a specific

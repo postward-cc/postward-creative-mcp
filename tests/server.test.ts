@@ -101,8 +101,8 @@ describe("tool catalog (specification)", () => {
     await server.close();
   });
 
-  it("identifies the server as postward-creative-mcp with the package version", () => {
-    expect(SERVER_NAME).toBe("postward-creative-mcp");
+  it("identifies the server as creative-mcp with the package version", () => {
+    expect(SERVER_NAME).toBe("creative-mcp");
     expect(SERVER_VERSION).toBe(packageJson.version);
   });
 });

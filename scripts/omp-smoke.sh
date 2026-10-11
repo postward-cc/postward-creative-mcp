@@ -35,7 +35,7 @@ if [ "${1:-}" = "--in-docker" ]; then
   SERVER_ARGS_JSON='["/app/dist/index.cjs"]'
   SERVER_COMMAND="node"
 else
-  SERVER_ARGS_JSON='["run", "-i", "--rm", "-v", "'"$(pwd)"':/tmp/postward-creative", "ghcr.io/postward-cc/postward-creative-mcp:latest"]'
+  SERVER_ARGS_JSON='["run", "-i", "--rm", "-v", "'"$(pwd)"':/tmp/postward-creative", "ghcr.io/postward-cc/creative-mcp:latest"]'
   SERVER_COMMAND="docker"
 fi
 cat > "$WORK/.mcp.json" << EOF

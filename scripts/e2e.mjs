@@ -185,7 +185,7 @@ async function main() {
   try {
     const init = await client.start();
     console.log(`handshake: ${init.result?.serverInfo?.name} ${init.result?.serverInfo?.version}`);
-    check("handshake: server name", init.result?.serverInfo?.name === "postward-creative-mcp");
+    check("handshake: server name", init.result?.serverInfo?.name === "creative-mcp");
 
     const listed = await client.call("list_tools", {});
     check("list_tools: every tool advertised", Array.isArray(listed.tools) && listed.tools.length >= 23, `${listed.tools?.length}`);

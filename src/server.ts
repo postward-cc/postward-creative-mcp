@@ -7,7 +7,7 @@ import { imageTools } from "./tools/image.ts";
 import { utilityTools } from "./tools/utility.ts";
 import { postwardTools } from "./tools/postward.ts";
 
-export const SERVER_NAME = "postward-creative-mcp";
+export const SERVER_NAME = "creative-mcp";
 /** Always the package version — the bundle inlines package.json at build time. */
 export const SERVER_VERSION: string = packageJson.version;
 

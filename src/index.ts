@@ -15,6 +15,6 @@ async function main(): Promise<void> {
 }
 
 main().catch((err) => {
-  console.error("postward-creative-mcp failed to start:", err instanceof Error ? err.message : err);
+  console.error("creative-mcp failed to start:", err instanceof Error ? err.message : err);
   process.exit(1);
 });
