@@ -1,7 +1,7 @@
 {
   "name": "@postward-cc/creative-mcp",
-  "version": "0.4.0",
-  "description": "Local-first MCP server for video and image editing \u2014 ffmpeg and ImageMagick driven by natural language. 100% offline: no keys, no network calls, no uploads, no account.",
+  "version": "0.5.0",
+  "description": "Local-first MCP server for video and image editing — ffmpeg and ImageMagick driven by natural language. 100% offline: no keys, no network calls, no uploads, no account.",
   "license": "MIT",
   "author": "Postward <hello@postward.cc> (https://postward.cc)",
   "homepage": "https://github.com/postward-cc/postward-creative-mcp#readme",
