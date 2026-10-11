@@ -5,6 +5,30 @@ import { promisify } from "node:util";
 import * as path from "node:path";
 import { CreativeError } from "../errors.ts";
 import type { ProbeInfo } from "../types.ts";
+import {
+  FfmpegInputError,
+  atempoChain,
+  concatListContent,
+  escapeFilterValue,
+  formatSeconds,
+  parseTimestamp as parseSharedTimestamp,
+  requirePositiveInt as requireSharedPositiveInt,
+  TRANSCODE_ASPECTS,
+  TRANSCODE_DIMENSIONS,
+  WATERMARK_POSITIONS,
+  watermarkCoordinates,
+} from "./ffmpeg-args.ts";
+
+export {
+  atempoChain,
+  concatListContent,
+  escapeFilterValue,
+  formatSeconds,
+  TRANSCODE_ASPECTS,
+  TRANSCODE_DIMENSIONS,
+  WATERMARK_POSITIONS,
+  type WatermarkPosition,
+} from "./ffmpeg-args.ts";
 
 const execFileAsync = promisify(execFile);
 
@@ -127,47 +151,28 @@ export async function hasAudio(filePath: string): Promise<boolean> {
   return (await probeMedia(filePath)).audioCodec !== null;
 }
 
-/**
- * Parse "SS", "MM:SS", "HH:MM:SS" (decimals allowed in the last field) into
- * seconds. Anything else is input_invalid — no silent fallback.
- */
+/** Preserve Creative MCP's public error contract around the shared parser. */
 export function parseTimestamp(value: string): number {
-  const trimmed = value.trim();
-  const parts = trimmed.split(":");
-  if (parts.length > 3 || parts.some((p) => p === "")) {
-    throw new CreativeError(
-      "input_invalid",
-      `Invalid timestamp "${value}". Use seconds ("90"), "MM:SS" ("1:30") or "HH:MM:SS" ("1:00:30").`,
-    );
-  }
-  let seconds = 0;
-  for (const part of parts) {
-    const n = Number(part);
-    if (!Number.isFinite(n) || n < 0) {
-      throw new CreativeError(
-        "input_invalid",
-        `Invalid timestamp "${value}". Use seconds ("90"), "MM:SS" ("1:30") or "HH:MM:SS" ("1:00:30").`,
-      );
+  try {
+    return parseSharedTimestamp(value);
+  } catch (error) {
+    if (error instanceof FfmpegInputError) {
+      throw new CreativeError("input_invalid", error.message);
     }
-    seconds = seconds * 60 + n;
+    throw error;
   }
-  return seconds;
 }
 
-/** Seconds → ffmpeg-friendly string without trailing zeros ("15", not "15.000"). */
-export function formatSeconds(n: number): string {
-  return String(Number(n.toFixed(3)));
-}
-
-export function requirePositiveInt(value: number, name: string, max?: number): number {
-  if (!Number.isInteger(value) || value < 1 || (max !== undefined && value > max)) {
-    throw new CreativeError(
-      "input_invalid",
-      `${name} must be a positive integer${max !== undefined ? ` up to ${max}` : ""}.`,
-    );
+export const requirePositiveInt = (value: number, name: string, max?: number): number => {
+  try {
+    return requireSharedPositiveInt(value, name, max);
+  } catch (error) {
+    if (error instanceof FfmpegInputError) {
+      throw new CreativeError("input_invalid", error.message);
+    }
+    throw error;
   }
-  return value;
-}
+};
 
 // ---------------------------------------------------------------------------
 // Pure argument builders — one per tool. These are pinned by unit tests.
@@ -204,12 +209,6 @@ export function buildTrimArgs(
   };
 }
 
-export const TRANSCODE_ASPECTS = ["9:16", "1:1", "16:9"] as const;
-export const TRANSCODE_DIMENSIONS: Record<(typeof TRANSCODE_ASPECTS)[number], [number, number]> = {
-  "9:16": [1080, 1920],
-  "1:1": [1080, 1080],
-  "16:9": [1920, 1080],
-};
 export const TRANSCODE_QUALITIES = ["high", "medium", "low"] as const;
 export type TranscodeQuality = (typeof TRANSCODE_QUALITIES)[number];
 
@@ -271,9 +270,7 @@ export function buildConcatArgs(videos: string[], workDirPath: string): FfmpegPl
     );
   }
   const listPath = path.join(workDirPath, `${randomUUID()}-list.txt`);
-  const content = videos
-    .map((v) => `file '${v.replace(/'/g, "'\\''")}'`)
-    .join("\n") + "\n";
+  const content = concatListContent(videos);
   const outputPath = outPath(workDirPath, "mp4");
   return {
     outputPath,
@@ -356,32 +353,6 @@ export function buildGifArgs(
   };
 }
 
-export const WATERMARK_POSITIONS = [
-  "top-left",
-  "top-right",
-  "bottom-left",
-  "bottom-right",
-  "center",
-] as const;
-export type WatermarkPosition = (typeof WATERMARK_POSITIONS)[number];
-
-const WATERMARK_MARGIN = 24;
-
-function watermarkCoords(position: WatermarkPosition): string {
-  const m = WATERMARK_MARGIN;
-  switch (position) {
-    case "top-left":
-      return `${m}:${m}`;
-    case "top-right":
-      return `main_w-overlay_w-${m}:${m}`;
-    case "bottom-left":
-      return `${m}:main_h-overlay_h-${m}`;
-    case "bottom-right":
-      return `main_w-overlay_w-${m}:main_h-overlay_h-${m}`;
-    case "center":
-      return `(main_w-overlay_w)/2:(main_h-overlay_h)/2`;
-  }
-}
 
 /** add_watermark: overlay a logo image onto the video. */
 export function buildWatermarkArgs(
@@ -406,7 +377,7 @@ export function buildWatermarkArgs(
       "-i",
       logoPath,
       "-filter_complex",
-      `overlay=${watermarkCoords(position as WatermarkPosition)}`,
+      `overlay=${watermarkCoordinates(position)}`,
       "-c:v",
       "libx264",
       "-crf",
@@ -420,11 +391,6 @@ export function buildWatermarkArgs(
   };
 }
 
-/** Escape a value used inside an ffmpeg filtergraph (drawtext text, subtitle
- * filename, …): \\, ', :, and % all need escaping, then quote it. */
-export function escapeFilterValue(value: string): string {
-  return `'${value.replace(/\\/g, "\\\\").replace(/'/g, "\\'").replace(/:/g, "\\:").replace(/%/g, "\\%")}'`;
-}
 
 /** burn_subtitles: SRT burned into the pixels. */
 export function buildBurnSubtitlesArgs(
@@ -545,20 +511,6 @@ export function buildSpeedArgs(
   };
 }
 
-export function atempoChain(rate: number): string {
-  const factors: number[] = [];
-  let remaining = rate;
-  while (remaining > 2.0) {
-    factors.push(2.0);
-    remaining /= 2.0;
-  }
-  while (remaining < 0.5) {
-    factors.push(0.5);
-    remaining /= 0.5;
-  }
-  factors.push(Number(remaining.toFixed(4)));
-  return factors.map((f) => `atempo=${formatSeconds(f)}`).join(",");
-}
 
 /** reverse_video: video always reversed; audio only when an audio stream
  * exists (probed by the handler — otherwise areverse would fail). */

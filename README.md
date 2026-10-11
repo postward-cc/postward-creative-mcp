@@ -276,10 +276,28 @@ secret (an LLM key with credits); without it the job self-skips.
 The same flow works locally: point a project `.mcp.json` at the server and
 run any MCP client — `omp -p`, Claude Desktop, Cursor, mcode, …
 
+
 - **Stack:** TypeScript, Node.js 22+, official MCP SDK, esbuild.
 - **Releases:** pushing a `v*` tag publishes the Docker image to
   `ghcr.io/postward-cc/postward-creative-mcp` and the package to npm
   (`@postward-cc/creative-mcp`).
+
+The pure FFmpeg argument primitives are also exported as a typed package
+subpath for other Postward tools to share:
+
+```ts
+import {
+  atempoChain,
+  concatListContent,
+  escapeFilterValue,
+  parseTimestamp,
+} from "@postward-cc/creative-mcp/ffmpeg-args"
+```
+
+This subpath has no filesystem or process effects: callers provide paths,
+consume argument/filter strings, and keep their own I/O, validation policy and
+error presentation. The Creative MCP adapts shared input errors to
+`CreativeError`; other consumers can adapt them to their own domain.
 
 ## License
 

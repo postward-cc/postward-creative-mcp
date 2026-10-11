@@ -28,11 +28,13 @@ jobs:
 
       - run: npm run typecheck
 
-      # Hermetic suite: pure ffmpeg argument builders, error contracts and
-      # the MCP server surface. Real-media execution lives in the E2E
-      # workflow, which runs every tool inside the shipped Docker image;
-      # the in-tree integration tests self-skip when the runner has no
-      # ffmpeg/ImageMagick.
+      # Build the public package subpath before checking the packed exports.
+      - run: npm run build
+      - run: npm run check:package-exports
+      - run: npm pack --dry-run
+
+      # Hermetic suite: pure ffmpeg argument builders, error contracts and the
+      # MCP server surface. Real-media execution lives in the E2E workflow.
       - run: npm test
 
   docker-build:

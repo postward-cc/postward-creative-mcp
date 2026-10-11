@@ -1,3 +1,11 @@
+import {
+  aspectDimensions,
+  concatListContent,
+  FfmpegInputError,
+  parseTimestamp as parseSharedTimestamp,
+  scalePadFilter,
+  watermarkCoordinates,
+} from "../src/lib/ffmpeg-args.ts";
 import { describe, expect, it } from "vitest";
 import {
   atempoChain,
@@ -274,5 +282,36 @@ describe("buildOverlayTextArgs", () => {
     const plan = buildOverlayTextArgs("/in.mp4", "hi", 48, "white", "center", "/fonts/x.ttf", WORK);
     const vf = plan.args[plan.args.indexOf("-vf") + 1];
     expect(vf).toContain("fontfile=");
+  });
+});
+describe("shared FFmpeg argument primitives", () => {
+  it("rejects malformed timestamps instead of silently becoming zero", () => {
+    expect(parseSharedTimestamp("1:30")).toBe(90);
+    expect(() => parseSharedTimestamp("not-a-time")).toThrow(FfmpegInputError);
+    expect(() => parseSharedTimestamp("1:2:3:4")).toThrow(FfmpegInputError);
+  });
+
+  it("uses one aspect-dimension table across consumers", () => {
+    expect(aspectDimensions("16:9")).toEqual({ width: 1920, height: 1080 });
+    expect(() => aspectDimensions("4:3")).toThrow(FfmpegInputError);
+  });
+
+  it("produces the shared scale-and-pad filter", () => {
+    expect(scalePadFilter(1080, 1920)).toBe(
+      "scale=1080:1920:force_original_aspect_ratio=decrease,pad=1080:1920:(ow-iw)/2:(oh-ih)/2",
+    );
+  });
+
+  it("uses the same concat list quoting in both adapters", () => {
+    expect(concatListContent(["/a.mp4", "/my 'clip'.mp4"])).toBe(
+      "file '/a.mp4'\nfile '/my '\\''clip'\\''.mp4'\n",
+    );
+  });
+
+  it("uses one set of watermark coordinates for common positions", () => {
+    expect(watermarkCoordinates("bottom-right")).toBe(
+      "main_w-overlay_w-24:main_h-overlay_h-24",
+    );
+    expect(watermarkCoordinates("top-left")).toBe("24:24");
   });
 });
