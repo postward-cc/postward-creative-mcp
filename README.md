@@ -292,12 +292,12 @@ nothing else — ffmpeg, ImageMagick, DejaVu fonts, CA certificates on
 Use it when you need the same media tooling but not this MCP server:
 
 ```dockerfile
-FROM ghcr.io/postward-cc/creative-mcp-media:v0.3.0
+FROM ghcr.io/postward-cc/creative-mcp-media:v0.4.0
 # ... your own layers
 ```
 
 Pin the release tag. The tag freezes this repository's whole state, toolchain
-included, so `v0.3.0` keeps giving you exactly that toolchain as later releases
+included, so `v0.4.0` keeps giving you exactly that toolchain as later releases
 move on.
 
 The package's own runtime is built `FROM` this same stage, so a server image and
