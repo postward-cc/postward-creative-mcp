@@ -105,7 +105,7 @@ export function watermarkCoordinates(position: string, margin = 24): string {
   }
 }
 
-/** Build an atempo filter chain for the ffmpeg-supported 0.5x–2x stage range. */
+/** Keep each atempo stage in 0.5x–2x; larger single stages skip samples. */
 export function atempoChain(rate: number): string {
   if (!Number.isFinite(rate) || rate <= 0) {
     throw new FfmpegInputError(`rate must be a finite positive number (got ${rate}).`);

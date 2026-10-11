@@ -472,8 +472,7 @@ export const SPEED_MIN_RATE = 0.25;
 export const SPEED_MAX_RATE = 4;
 
 /**
- * change_speed: setpts for video; atempo chains for audio because a single
- * atempo only covers 0.5–2.0.
+ * atempo accepts up to 100, but skips samples above 2; chaining preserves quality.
  */
 export function buildSpeedArgs(
   videoPath: string,
