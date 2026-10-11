@@ -83,7 +83,7 @@ is no fallback (this is what keeps your machine clean and your files local).
 ### Option A — one command (Claude Code)
 
 ```bash
-claude mcp add postward-creative -- docker run -i --rm -v postward-creative-output:/tmp/postward-creative ghcr.io/postward-cc/postward-creative-mcp:latest
+claude mcp add postward-creative -- docker run -i --rm -v postward-creative-output:/tmp/postward-creative ghcr.io/postward-cc/creative-mcp:latest
 ```
 
 For Codex CLI, add the same server to `~/.codex/config.toml`:
@@ -91,7 +91,7 @@ For Codex CLI, add the same server to `~/.codex/config.toml`:
 ```toml
 [mcp_servers.postward-creative]
 command = "docker"
-args = ["run", "-i", "--rm", "-v", "postward-creative-output:/tmp/postward-creative", "ghcr.io/postward-cc/postward-creative-mcp:latest"]
+args = ["run", "-i", "--rm", "-v", "postward-creative-output:/tmp/postward-creative", "ghcr.io/postward-cc/creative-mcp:latest"]
 ```
 
 ### Option B — config file (Claude Desktop, Cursor, anything that speaks MCP)
@@ -106,7 +106,7 @@ Add to `claude_desktop_config.json` or `.cursor/mcp.json` and restart the app:
       "args": [
         "run", "-i", "--rm",
         "-v", "postward-creative-output:/tmp/postward-creative",
-        "ghcr.io/postward-cc/postward-creative-mcp:latest"
+        "ghcr.io/postward-cc/creative-mcp:latest"
       ]
     }
   }
@@ -279,7 +279,7 @@ run any MCP client — `omp -p`, Claude Desktop, Cursor, mcode, …
 
 - **Stack:** TypeScript, Node.js 22+, official MCP SDK, esbuild.
 - **Releases:** pushing a `v*` tag publishes the Docker image to
-  `ghcr.io/postward-cc/postward-creative-mcp`, the bare media base image to
+  `ghcr.io/postward-cc/creative-mcp`, the bare media base image to
   `ghcr.io/postward-cc/creative-mcp-media`, and the package to npm
   (`@postward-cc/creative-mcp`).
 
@@ -303,6 +303,24 @@ move on.
 The package's own runtime is built `FROM` this same stage, so a server image and
 a consumer image cannot drift apart on the apt line — which is the failure this
 stage exists to remove.
+
+### Image names
+
+The npm package is the root and the images follow it, with a `-media` suffix
+marking the bare toolchain:
+
+| Artifact | Name |
+|---|---|
+| MCP server image | `ghcr.io/postward-cc/creative-mcp` |
+| Media base image | `ghcr.io/postward-cc/creative-mcp-media` |
+| npm package | `@postward-cc/creative-mcp` |
+
+The package is the one that cannot move: an npm scope is permanent, so
+renaming means deprecating and publishing a new name. The images followed it
+rather than the other way round.
+
+Releases up to and including `v0.4.0` published the server image as
+`postward-creative-mcp`. That path is gone; `creative-mcp` is the name to use.
 
 The pure FFmpeg argument primitives are also exported as a typed package
 subpath for other Postward tools to share:
