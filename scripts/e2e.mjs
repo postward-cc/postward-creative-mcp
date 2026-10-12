@@ -217,11 +217,11 @@ async function main() {
     const audioProbe = JSON.parse((await execFileAsync("ffprobe", ["-v", "quiet", "-print_format", "json", "-show_streams", audio.filePath])).stdout);
     check("extract_audio: aac stream", audioProbe.streams.some((s) => s.codec_name === "aac"));
 
-    const gif = assertFileResult("create_gif", await client.call("create_gif", { video_path: video, start: "0", duration: 2, width: 160 }));
+    assertFileResult("create_gif", await client.call("create_gif", { video_path: video, start: "0", duration: 2, width: 160 }));
 
-    const watermarked = assertFileResult("add_watermark", await client.call("add_watermark", { video_path: video, logo_path: frame.filePath, position: "top-left" }));
+    assertFileResult("add_watermark", await client.call("add_watermark", { video_path: video, logo_path: frame.filePath, position: "top-left" }));
 
-    const subtitled = assertFileResult("burn_subtitles", await client.call("burn_subtitles", { video_path: video, srt_path: srt }));
+    assertFileResult("burn_subtitles", await client.call("burn_subtitles", { video_path: video, srt_path: srt }));
 
     const faded = assertFileResult("add_fade", await client.call("add_fade", { video_path: video, fade_in: 0.5, fade_out: 0.5 }));
     check("add_fade: duration preserved ≈ 4s", closeTo(await durationOf(faded.filePath), 4, 0.3));
@@ -232,22 +232,22 @@ async function main() {
     const reversed = assertFileResult("reverse_video", await client.call("reverse_video", { video_path: video }));
     check("reverse_video: duration preserved ≈ 4s", closeTo(await durationOf(reversed.filePath), 4, 0.3));
 
-    const flipped = assertFileResult("flip_video", await client.call("flip_video", { video_path: video, direction: "horizontal" }));
+    assertFileResult("flip_video", await client.call("flip_video", { video_path: video, direction: "horizontal" }));
 
-    const cropped = assertFileResult("crop_video", await client.call("crop_video", { video_path: video, width: 160, height: 120, x: 0, y: 0 }));
+    assertFileResult("crop_video", await client.call("crop_video", { video_path: video, width: 160, height: 120, x: 0, y: 0 }));
 
-    const louder = assertFileResult("adjust_volume", await client.call("adjust_volume", { video_path: video, gain: 6 }));
+    assertFileResult("adjust_volume", await client.call("adjust_volume", { video_path: video, gain: 6 }));
 
-    const replaced = assertFileResult("replace_audio", await client.call("replace_audio", { video_path: video, audio_path: audio.filePath }));
+    assertFileResult("replace_audio", await client.call("replace_audio", { video_path: video, audio_path: audio.filePath }));
 
-    const captioned = assertFileResult("overlay_text", await client.call("overlay_text", { video_path: video, text: "Postward e2e", fontSize: 32, color: "white", position: "center" }));
+    assertFileResult("overlay_text", await client.call("overlay_text", { video_path: video, text: "Postward e2e", fontSize: 32, color: "white", position: "center" }));
 
-    const resized = assertFileResult("resize_image", await client.call("resize_image", { image_path: frame.filePath, width: 100, height: 100 }));
+    assertFileResult("resize_image", await client.call("resize_image", { image_path: frame.filePath, width: 100, height: 100 }));
 
     const converted = assertFileResult("convert_format", await client.call("convert_format", { image_path: frame.filePath, format: "jpeg" }));
     check("convert_format: image/jpeg", converted.mimeType === "image/jpeg");
 
-    const thumb = assertFileResult("image_thumbnail", await client.call("image_thumbnail", { image_path: frame.filePath, size: 64 }));
+    assertFileResult("image_thumbnail", await client.call("image_thumbnail", { image_path: frame.filePath, size: 64 }));
 
     const info = await client.call("image_info", { image_path: frame.filePath });
     check("image_info: 320x240 png", info.width === 320 && info.height === 240 && info.format === "PNG", `${info.width}x${info.height} ${info.format}`);

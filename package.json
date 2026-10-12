@@ -1,7 +1,7 @@
 {
   "name": "@postward-cc/creative-mcp",
   "version": "0.6.0",
-  "description": "Local-first MCP server for video and image editing — ffmpeg and ImageMagick driven by natural language. 100% offline: no keys, no network calls, no uploads, no account.",
+  "description": "Local-first MCP server for video and image editing \u2014 ffmpeg and ImageMagick driven by natural language. 100% offline: no keys, no network calls, no uploads, no account.",
   "license": "MIT",
   "author": "Postward <hello@postward.cc> (https://postward.cc)",
   "homepage": "https://github.com/postward-cc/postward-creative-mcp#readme",
@@ -42,7 +42,8 @@
     "test:coverage": "vitest run --coverage",
     "check:package-exports": "node scripts/check-package-exports.mjs",
     "test:watch": "vitest",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "lint": "oxlint src tests scripts"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.13.0",
@@ -52,8 +53,14 @@
     "@types/node": "^26.0.0",
     "@vitest/coverage-v8": "^5.0.3",
     "esbuild": "^0.28.2",
+    "oxlint": "^1.87.0",
     "typescript": "^7.0.2",
     "vite": "^8.3.4",
     "vitest": "^5.0.3"
+  },
+  "lint-staged": {
+    "*.{ts,mjs}": [
+      "oxlint --fix"
+    ]
   }
 }
