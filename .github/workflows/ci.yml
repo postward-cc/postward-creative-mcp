@@ -26,6 +26,11 @@ jobs:
 
       - run: npm ci
 
+      # Lint before the build, so a style failure is a 2-second signal rather
+      # than a 40-second one. oxlint has no TypeScript dependency, so this
+      # stays green on the TypeScript 7 compiler.
+      - run: npm run lint
+
       - run: npm run typecheck
 
       # Build the public package subpath before checking the packed exports.
