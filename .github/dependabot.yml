@@ -29,20 +29,11 @@ updates:
       deps:
         patterns: ["*"]
         update-types: [minor, patch]
-    ignore:
-      # Held back deliberately. `engines.node`, the CI node-version, the
-      # Dockerfile base and this dependency have to move together, and four
-      # separate Dependabot pull requests would break the agreement between
-      # them. Moving Node is a reviewed change across both repositories, not a
-      # version bump; see the note in the docker entry below.
-      - dependency-name: "@types/node"
-        update-types: [version-update:semver-major]
-
   # Two things depend on the Node release line: the published media base image
-  # and the binary a user runs. This ecosystem is what turns "Node 24 is still
-  # supported" into a pull request instead of something nobody notices, and it
-  # is also what will announce Node 26 LTS — including for the media base, which
-  # the cloud then consumes through its own media-toolchain group.
+  # and the binary a user runs. This ecosystem is what turns "the Node we ship
+  # is still supported" into a pull request instead of something nobody notices
+  # — and it is also what announces the next LTS, for the media base the cloud
+  # consumes as well as for this repository's own build.
   - package-ecosystem: docker
     directory: /
     schedule:
