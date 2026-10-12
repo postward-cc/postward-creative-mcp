@@ -65,15 +65,32 @@ describe("the Node version the repository declares, tests and ships", () => {
 
     // The image the package ships inside has to match, because the published
     // binary is what the runtime is, for anyone pulling rather than installing.
-    const dockerfile = readFileSync(path.join(ROOT, "Dockerfile"), "utf8")
-    const baseVersions = [...dockerfile.matchAll(/^FROM node:(\d+)/gm)].map((match) => Number(match[1]))
-    expect(baseVersions.length, "Dockerfile has no node base to check").toBeGreaterThan(0)
-    for (const version of baseVersions) {
-      expect(
-        version,
-        `Dockerfile builds on Node ${version} but engines.node allows from ${floor}. The published ` +
-          "binary runs on whatever this image carries.",
-      ).toBe(floor)
+    //
+    // Every Dockerfile in the root, not just the one that publishes. Two
+    // auxiliary images — the client smoke and the E2E harness — were still on
+    // Node 24 after this repository moved to 26, and this check did not notice,
+    // because it only ever read `Dockerfile`. An invariant that covers one file
+    // of three is worse than none: it reports agreement.
+    const dockerfiles = readdirSync(ROOT).filter(
+      (file) => file === "Dockerfile" || file.startsWith("Dockerfile."),
+    )
+    expect(
+      dockerfiles.length,
+      "no Dockerfile found in the root — the check below would pass vacuously",
+    ).toBeGreaterThan(0)
+
+    for (const file of dockerfiles) {
+      const body = readFileSync(path.join(ROOT, file), "utf8")
+      const baseVersions = [...body.matchAll(/^FROM node:(\d+)/gm)].map((match) => Number(match[1]))
+      expect(baseVersions.length, `${file} has no node base to check`).toBeGreaterThan(0)
+      for (const version of baseVersions) {
+        expect(
+          version,
+          `${file} builds on Node ${version} but engines.node allows from ${floor}. The published ` +
+            "binary runs on whatever this image carries, and the smoke and E2E images run the same " +
+            "tools as everything else.",
+        ).toBe(floor)
+      }
     }
 
     // Types track the floor rather than the version being tested: code that
