@@ -6,14 +6,14 @@
 #         docker run --rm -e XAI_API_KEY=… pw-client-smoke
 # CI:     .github/workflows/client-smoke.yml (dispatch + weekly schedule).
 
-FROM node:24-bookworm-slim AS builder
+FROM node:26-bookworm-slim AS builder
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci
 COPY . .
 RUN npm run build
 
-FROM node:24-bookworm-slim AS media-runtime
+FROM node:26-bookworm-slim AS media-runtime
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ffmpeg \
     imagemagick \
